@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ProductList } from "./components/ProductList";
 import { Cart } from "./components/Cart";
 import { Total } from "./components/Total";
+import { CheckoutForm } from "./components/CheckoutForm";
 import { Product, CartItem } from "./types";
 
 const PRODUCTS: Product[] = [
@@ -13,6 +14,7 @@ const PRODUCTS: Product[] = [
 
 export const ShoppingCartApp: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [view, setView] = useState<"cart" | "checkout">("cart");
 
   const addToCart = (product: Product) => {
     const itemId = cart.find((item) => item.id === product.id)?.id;
@@ -42,20 +44,46 @@ export const ShoppingCartApp: React.FC = () => {
     );
   };
 
+  const handleCheckout = () => {
+    setView("checkout");
+  };
+
+  const handlePlaceOrder = (data: any) => {
+    console.log("Order placed:", data);
+    setCart([]);
+    setView("cart");
+    alert("Order placed successfully!");
+  };
+
   return (
     <div className="shopping-cart-app">
       <h1>Shopping Cart Debugging</h1>
-      <div style={{ display: "flex", gap: "20px" }}>
-        <ProductList products={PRODUCTS} addToCart={addToCart} />
-        <div>
-          <Cart
-            cart={cart}
-            updateQuantity={updateQuantity}
-            removeFromCart={removeFromCart}
-          />
-          <Total cart={cart} />
+      {view === "cart" ? (
+        <div style={{ display: "flex", gap: "20px" }}>
+          <ProductList products={PRODUCTS} addToCart={addToCart} />
+          <div>
+            <Cart
+              cart={cart}
+              updateQuantity={updateQuantity}
+              removeFromCart={removeFromCart}
+            />
+            <Total cart={cart} />
+            {cart.length > 0 && (
+              <button
+                onClick={handleCheckout}
+                style={{ marginTop: "20px", width: "100%" }}
+              >
+                Proceed to Checkout
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <CheckoutForm
+          onSubmit={handlePlaceOrder}
+          onCancel={() => setView("cart")}
+        />
+      )}
     </div>
   );
 };
